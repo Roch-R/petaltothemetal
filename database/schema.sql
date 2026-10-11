@@ -1,0 +1,73 @@
+CREATE TABLE users (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(100) NOT NULL,
+ email VARCHAR(190) NOT NULL UNIQUE,
+ password_hash VARCHAR(255) NOT NULL,
+ role ENUM('customer','admin') NOT NULL DEFAULT 'customer',
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE categories (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(100) NOT NULL UNIQUE,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE products (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ category_id BIGINT UNSIGNED NOT NULL,
+ name VARCHAR(150) NOT NULL,
+ description TEXT NOT NULL,
+ image_path VARCHAR(255) NOT NULL,
+ price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+ stock_quantity INT UNSIGNED NOT NULL DEFAULT 0,
+ is_active TINYINT UNSIGNED NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
+ INDEX category_active (category_id,is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE orders (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ user_id BIGINT UNSIGNED NOT NULL,
+ order_reference VARCHAR(40) NOT NULL UNIQUE,
+ checkout_key CHAR(64) NOT NULL UNIQUE,
+ fulfillment_method ENUM('delivery','pickup') NOT NULL,
+ scheduled_date DATE NOT NULL,
+ recipient_name VARCHAR(100) NULL,
+ recipient_phone VARCHAR(40) NULL,
+ delivery_address VARCHAR(500) NULL,
+ gift_message VARCHAR(500) NOT NULL DEFAULT '',
+ subtotal DECIMAL(10,2) NOT NULL CHECK (subtotal >= 0),
+ fulfillment_fee DECIMAL(10,2) NOT NULL CHECK (fulfillment_fee >= 0),
+ total DECIMAL(10,2) NOT NULL CHECK (total >= 0),
+ status ENUM('pending','preparing','out_for_delivery','ready_for_pickup','completed','cancelled') NOT NULL DEFAULT 'pending',
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+ INDEX customer_created (user_id,created_at),
+ INDEX status_created (status,created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE order_items (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ order_id BIGINT UNSIGNED NOT NULL,
+ product_id BIGINT UNSIGNED NOT NULL,
+ product_name VARCHAR(150) NOT NULL,
+ unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price >= 0),
+ quantity INT UNSIGNED NOT NULL CHECK (quantity > 0),
+ FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT,
+ FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE payments (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ order_id BIGINT UNSIGNED NOT NULL UNIQUE,
+ demo_reference VARCHAR(50) NOT NULL UNIQUE,
+ status ENUM('simulated_paid','simulated_refunded') NOT NULL,
+ amount DECIMAL(10,2) NOT NULL CHECK (amount >= 0),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

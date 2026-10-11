@@ -1,0 +1,6 @@
+.worktrees/
+/config/local.php
+/storage/logs/*
+!/storage/logs/.gitkeep
+*.log
+/storage/demo-credentials.txt
