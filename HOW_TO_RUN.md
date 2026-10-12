@@ -20,6 +20,33 @@ Internet access is used for Google Fonts. If unavailable, the site uses fallback
 
 ## Quick start on this computer
 
+Double-click **run.bat** to start the database and website and open your browser.
+Double-click **phpmyadmin.bat** to open phpMyAdmin connected to this project's database.
+No need to manually import SQL.
+
+The launcher creates missing databases and imports the schema into empty databases.
+It adds sample flowers only when initializing the application database; existing
+data is kept. If you delete the whole shop database in phpMyAdmin, close that tab
+and run **run.bat** again. This recreates the sample catalog, but deleted accounts,
+orders, and custom products are lost unless you restore a backup. If only some
+tables are missing, the launcher stops and explains the problem.
+
+On this computer the launcher uses a separate local MariaDB on **port 3307**
+because XAMPP's original database was crashing. Its files live in
+`storage/logs/local-mariadb/`; keep that folder to preserve your shop data.
+The phpMyAdmin shortcut serves a private copy at **http://127.0.0.1:8001/**,
+configured for the same server as `config/local.php`. XAMPP's normal
+`http://localhost/phpmyadmin/` may show a different server on port 3306.
+PHP serves the shop at **http://127.0.0.1:8000/**. Both servers run in the
+background. Repeated launches reuse running servers.
+
+Install XAMPP at `C:\xampp`, or set the `PETAL_XAMPP_HOME` environment variable
+to your XAMPP folder. The launcher preserves an existing `config/local.php`;
+without one it creates local settings for port 3307. Startup diagnostics are
+saved under `storage/logs/`. You can also run `run.bat phpmyadmin`.
+
+### Manual startup (optional)
+
 The current project already has its database configuration, sample catalog, and an administrator set up. Use these steps for normal daily use:
 
 1. Open **XAMPP Control Panel** and start **MySQL**. XAMPP uses this label for its bundled MariaDB database service. If the intended database instance is already running, use it.

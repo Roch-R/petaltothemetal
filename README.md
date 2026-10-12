@@ -14,6 +14,13 @@ The approved scope includes customer accounts, a flower catalog, a cart, simulat
 
 ## Setup
 
+With XAMPP installed at `C:\xampp`, double-click **run.bat** to start the local
+database and website and open the shop. Double-click **phpmyadmin.bat** to manage
+the same database. The launcher creates missing databases and imports sample
+flowers automatically; existing data is preserved. Deleting the database and
+running the launcher again recreates the demo catalog, but cannot recover deleted
+accounts or orders. See HOW_TO_RUN.md for details and alternate XAMPP locations.
+
 Start with [How to run: requirements, dependencies, and setup](HOW_TO_RUN.md). The [detailed XAMPP setup guide](docs/setup.md) is also available. From this project folder, verify the environment with:
 
 ```powershell
